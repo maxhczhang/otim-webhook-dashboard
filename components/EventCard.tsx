@@ -93,24 +93,26 @@ export default function EventCard({ id, type, created_at, data, signature, verif
         </div>
       </div>
 
-      {expanded && (
-        <div className="border-t border-zinc-800 bg-zinc-950/50 p-4 space-y-3">
-          {signature && (
-            <div>
-              <div className="text-[10px] uppercase tracking-wider text-zinc-500 mb-1">HMAC-SHA256 Signature</div>
-              <div className="font-mono text-xs text-zinc-400 break-all bg-zinc-900 rounded px-3 py-2 border border-zinc-800">
-                {signature}
+      <div className={`grid transition-[grid-template-rows] duration-120 ease-out ${expanded ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'}`}>
+        <div className="overflow-hidden">
+          <div className="border-t border-zinc-800 bg-zinc-950/50 p-4 space-y-3">
+            {signature && (
+              <div>
+                <div className="text-[10px] uppercase tracking-wider text-zinc-500 mb-1">HMAC-SHA256 Signature</div>
+                <div className="font-mono text-xs text-zinc-400 break-all bg-zinc-900 rounded px-3 py-2 border border-zinc-800">
+                  {signature}
               </div>
             </div>
           )}
-          <div>
-            <div className="text-[10px] uppercase tracking-wider text-zinc-500 mb-1">Event Payload</div>
-            <pre className="font-mono text-xs text-zinc-400 bg-zinc-900 rounded px-3 py-2 border border-zinc-800 overflow-x-auto">
-              {JSON.stringify({ id, type, created_at, data }, null, 2)}
-            </pre>
+            <div>
+              <div className="text-[10px] uppercase tracking-wider text-zinc-500 mb-1">Event Payload</div>
+              <pre className="font-mono text-xs text-zinc-400 bg-zinc-900 rounded px-3 py-2 border border-zinc-800 overflow-x-auto">
+                {JSON.stringify({ id, type, created_at, data }, null, 2)}
+              </pre>
+            </div>
           </div>
         </div>
-      )}
+      </div>
     </div>
   );
 }
