@@ -64,6 +64,10 @@ export function insertEvent(event: {
   );
 }
 
+export function clearEvents(): void {
+  getDb().exec('DELETE FROM events');
+}
+
 export function getEvents(limit = 50): WebhookEvent[] {
   return getDb().prepare(
     'SELECT * FROM events ORDER BY received_at DESC LIMIT ?'
