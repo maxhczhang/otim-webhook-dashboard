@@ -51,17 +51,15 @@ export default function EventFeed() {
 
 
   const [activeStep, setActiveStep] = useState(-1);
-  const initialLoadDone = useRef(false);
+  const [loading, setLoading] = useState(true);
 
   // Load persisted events
   useEffect(() => {
     fetch('/api/events')
       .then((res) => res.json())
-      .then((data: Event[]) => {
-        setEvents(data.map(parseEvent));
-        initialLoadDone.current = true;
-      })
-      .catch(console.error);
+      .then((data: Event[]) => setEvents(data.map(parseEvent)))
+      .catch(console.error)
+      .finally(() => setLoading(false));
   }, []);
 
   // SSE subscription
@@ -268,7 +266,9 @@ export default function EventFeed() {
 
       {/* Event feed */}
       <div className="space-y-2">
-        {events.length === 0 ? (
+        {loading ? (
+          <div className="text-center py-16 text-zinc-600 text-sm">Loading events...</div>
+        ) : events.length === 0 ? (
           <div className="border border-zinc-800 rounded-lg p-8 bg-zinc-900/30 text-center">
             <div className="text-zinc-400 text-lg font-medium mb-2">No events yet</div>
             <p className="text-zinc-600 text-sm max-w-md mx-auto mb-4">
