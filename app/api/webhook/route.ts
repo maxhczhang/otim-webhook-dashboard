@@ -11,7 +11,8 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Missing signature header' }, { status: 401 });
   }
 
-  if (!verifyWebhookSignature(body, signature)) {
+  const verified = verifyWebhookSignature(body, signature);
+  if (!verified) {
     return NextResponse.json({ error: 'Invalid signature' }, { status: 401 });
   }
 
@@ -26,8 +27,9 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Invalid event payload' }, { status: 400 });
   }
 
-  insertEvent(event);
-  broadcast(JSON.stringify(event));
+  const eventWithSig = { ...event, signature, verified: true };
+  insertEvent(eventWithSig);
+  broadcast(JSON.stringify(eventWithSig));
 
   return NextResponse.json({ received: true, id: event.id });
 }
