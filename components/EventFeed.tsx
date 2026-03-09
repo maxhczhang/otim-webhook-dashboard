@@ -70,7 +70,10 @@ export default function EventFeed() {
     source.onmessage = (msg) => {
       const event = parseEvent(JSON.parse(msg.data));
       setNewEventIds((prev) => new Set(prev).add(event.id));
-      setEvents((prev) => [event, ...prev]);
+      setEvents((prev) => {
+        if (prev.some((e) => e.id === event.id)) return prev;
+        return [event, ...prev];
+      });
       // Clear "new" status after animation
       setTimeout(() => {
         setNewEventIds((prev) => {
