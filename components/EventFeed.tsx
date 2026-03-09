@@ -48,7 +48,7 @@ export default function EventFeed() {
   const [events, setEvents] = useState<ParsedEvent[]>([]);
   const [newEventIds, setNewEventIds] = useState<Set<string>>(new Set());
   const [simulating, setSimulating] = useState(false);
-  const [volumeCurrency, setVolumeCurrency] = useState('ALL');
+
 
   const [activeStep, setActiveStep] = useState(-1);
   const initialLoadDone = useRef(false);
@@ -128,15 +128,14 @@ export default function EventFeed() {
 
   // Stats
   const VOLUME_TYPES = ['transfer.settled', 'yield.earned', 'iban.deposit'];
-  const CURRENCIES = ['ALL', 'USDC', 'USDT', 'USD', 'EUR'] as const;
-  const totalVolume = events.reduce((sum, e) => {
-    if (!VOLUME_TYPES.includes(e.type)) return sum;
+  const volumeByCurrency: Record<string, number> = {};
+  for (const e of events) {
+    if (!VOLUME_TYPES.includes(e.type)) continue;
     const amt = e.data.amount as string | undefined;
     const cur = e.data.currency as string | undefined;
-    if (!amt) return sum;
-    if (volumeCurrency !== 'ALL' && cur !== volumeCurrency) return sum;
-    return sum + parseFloat(amt);
-  }, 0);
+    if (!amt || !cur) continue;
+    volumeByCurrency[cur] = (volumeByCurrency[cur] || 0) + parseFloat(amt);
+  }
 
   const typeCounts: Record<string, number> = {};
   for (const e of events) {
@@ -230,21 +229,23 @@ export default function EventFeed() {
           <div className="text-white text-2xl font-bold mt-1 font-mono">{events.length}</div>
         </div>
         <div className="border border-zinc-800 rounded-lg p-4 bg-zinc-900/50">
-          <div className="flex items-center justify-between">
-            <div className="text-zinc-500 text-[10px] uppercase tracking-wider">Total Volume</div>
-            <select
-              value={volumeCurrency}
-              onChange={(e) => setVolumeCurrency(e.target.value)}
-              className="bg-zinc-800 border border-zinc-700 text-zinc-300 text-[10px] rounded px-1.5 py-0.5 focus:outline-none focus:border-zinc-500 cursor-pointer"
-            >
-              {CURRENCIES.map((c) => (
-                <option key={c} value={c}>{c === 'ALL' ? 'All' : c}</option>
-              ))}
-            </select>
-          </div>
-          <div className="text-white text-2xl font-bold mt-1 font-mono">
-            {volumeCurrency === 'ALL' ? '$' : ''}{totalVolume.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}{volumeCurrency !== 'ALL' ? ` ${volumeCurrency}` : ''}
-          </div>
+          <div className="text-zinc-500 text-[10px] uppercase tracking-wider">Volume by Currency</div>
+          {Object.keys(volumeByCurrency).length === 0 ? (
+            <div className="text-white text-2xl font-bold mt-1 font-mono">0.00</div>
+          ) : (
+            <div className="mt-1.5 space-y-1">
+              {Object.entries(volumeByCurrency)
+                .sort(([, a], [, b]) => b - a)
+                .map(([cur, vol]) => (
+                  <div key={cur} className="flex items-baseline justify-between">
+                    <span className="text-zinc-500 text-xs font-mono">{cur}</span>
+                    <span className="text-white text-sm font-bold font-mono">
+                      {vol.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                    </span>
+                  </div>
+                ))}
+            </div>
+          )}
         </div>
         <div className="border border-zinc-800 rounded-lg p-4 bg-zinc-900/50">
           <div className="text-zinc-500 text-[10px] uppercase tracking-wider">Signatures Verified</div>
