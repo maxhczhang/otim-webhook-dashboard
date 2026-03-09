@@ -48,6 +48,7 @@ export default function EventFeed() {
   const [events, setEvents] = useState<ParsedEvent[]>([]);
   const [newEventIds, setNewEventIds] = useState<Set<string>>(new Set());
   const [simulating, setSimulating] = useState(false);
+  const [volumeCurrency, setVolumeCurrency] = useState('ALL');
 
   const [activeStep, setActiveStep] = useState(-1);
   const initialLoadDone = useRef(false);
@@ -124,10 +125,14 @@ export default function EventFeed() {
 
   // Stats
   const VOLUME_TYPES = ['transfer.settled', 'yield.earned', 'iban.deposit'];
+  const CURRENCIES = ['ALL', 'USDC', 'USDT', 'USD', 'EUR'] as const;
   const totalVolume = events.reduce((sum, e) => {
     if (!VOLUME_TYPES.includes(e.type)) return sum;
     const amt = e.data.amount as string | undefined;
-    return sum + (amt ? parseFloat(amt) : 0);
+    const cur = e.data.currency as string | undefined;
+    if (!amt) return sum;
+    if (volumeCurrency !== 'ALL' && cur !== volumeCurrency) return sum;
+    return sum + parseFloat(amt);
   }, 0);
 
   const typeCounts: Record<string, number> = {};
@@ -222,9 +227,20 @@ export default function EventFeed() {
           <div className="text-white text-2xl font-bold mt-1 font-mono">{events.length}</div>
         </div>
         <div className="border border-zinc-800 rounded-lg p-4 bg-zinc-900/50">
-          <div className="text-zinc-500 text-[10px] uppercase tracking-wider">Total Volume</div>
+          <div className="flex items-center justify-between">
+            <div className="text-zinc-500 text-[10px] uppercase tracking-wider">Total Volume</div>
+            <select
+              value={volumeCurrency}
+              onChange={(e) => setVolumeCurrency(e.target.value)}
+              className="bg-zinc-800 border border-zinc-700 text-zinc-300 text-[10px] rounded px-1.5 py-0.5 focus:outline-none focus:border-zinc-500 cursor-pointer"
+            >
+              {CURRENCIES.map((c) => (
+                <option key={c} value={c}>{c === 'ALL' ? 'All' : c}</option>
+              ))}
+            </select>
+          </div>
           <div className="text-white text-2xl font-bold mt-1 font-mono">
-            ${totalVolume.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+            {volumeCurrency === 'ALL' ? '$' : ''}{totalVolume.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}{volumeCurrency !== 'ALL' ? ` ${volumeCurrency}` : ''}
           </div>
         </div>
         <div className="border border-zinc-800 rounded-lg p-4 bg-zinc-900/50">
