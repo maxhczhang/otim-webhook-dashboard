@@ -13,6 +13,10 @@ interface EventCardProps {
 }
 
 const TYPE_COLORS: Record<string, { badge: string; icon: string }> = {
+  'transfer.initiated': {
+    badge: 'bg-sky-500/20 text-sky-400 border-sky-500/30',
+    icon: '\u2192',
+  },
   'transfer.settled': {
     badge: 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30',
     icon: '\u2713',
@@ -24,6 +28,10 @@ const TYPE_COLORS: Record<string, { badge: string; icon: string }> = {
   'iban.deposit': {
     badge: 'bg-purple-500/20 text-purple-400 border-purple-500/30',
     icon: '\u2193',
+  },
+  'entity.created': {
+    badge: 'bg-cyan-500/20 text-cyan-400 border-cyan-500/30',
+    icon: '+',
   },
   'entity.verified': {
     badge: 'bg-amber-500/20 text-amber-400 border-amber-500/30',

@@ -4,7 +4,7 @@ import { signPayload } from '@/lib/verify';
 import { insertEvent } from '@/lib/db';
 import { broadcast } from '@/lib/eventBus';
 
-const VALID_TYPES = ['transfer.settled', 'yield.earned', 'iban.deposit', 'entity.verified', 'transfer.failed'];
+const VALID_TYPES = ['transfer.initiated', 'transfer.settled', 'transfer.failed', 'yield.earned', 'iban.deposit', 'entity.created', 'entity.verified'];
 
 export async function POST(request: NextRequest) {
   let eventType: OtimEventType | undefined;
